@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+  data:
+    image: tianon/true
+    volumes:
+      - ".:/var/www"
+      - "./data/db:/var/lib/mysql"
+      - "./data/redis:/var/lib/redis"
+      - "./conf/nginx.conf:/etc/nginx/conf.d/default.conf"
+      - "./logs/nginx:/var/logs/nginx"
+      - "./logs/php:/var/logs/php"
+
+  db:
+    image: mysql
+    ports:
+      - 3306:3306
+    volumes_from:
+      - data
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  nginx:
+    image: nginx
+    ports:
+      - 80:80
+    links:
+      - php
+    volumes_from:
+      - data
+
+  php:
+    image: phpdockerio/php71-fpm
+    ports:
+      - 9000:9000
+    links:
+      - db
+    volumes_from:
+      - data
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes_from:
+      - data
