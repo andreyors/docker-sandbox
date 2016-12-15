@@ -1,9 +1,10 @@
 FROM php:7.1.0-fpm-alpine
 
-
+ENV TIMEZONE UTC
 
 RUN \
-    apk update \
+    { set -x ;} 2> /dev/null \
+    && apk update \
 	&& apk add --update tzdata \
 	&& cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
 	&& echo "${TIMEZONE}" > /etc/timezone \
@@ -12,6 +13,8 @@ RUN \
         freetype libpng libjpeg-turbo \
         freetype-dev libpng-dev libjpeg-turbo-dev \
         libmcrypt libmcrypt-dev \
+        go bzr \
+        git \
     && docker-php-ext-configure gd \
         --with-gd \
         --with-freetype-dir=/usr/include/ \
@@ -24,10 +27,15 @@ RUN \
         mysqli \
         opcache \
         mcrypt \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer global require "hirak/prestissimo:^0.3" \
+    && GOPATH=/tmp/gocode go get github.com/mailhog/mhsendmail \
+    && mv /tmp/gocode/bin/mhsendmail /usr/local/bin/mhsendmail \
     && apk del --no-cache \
         freetype-dev libpng-dev libjpeg-turbo-dev \
         libmcrypt-dev \
         tzdata \
-    && rm -rf /var/cache/apk/* /tmp/* /usr/share/man
+        go bzr \
+    && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
+    && set -e
+
