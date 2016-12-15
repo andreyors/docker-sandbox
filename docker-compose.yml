@@ -48,7 +48,7 @@ services:
     ports:
       - 6379:6379
     volumes_from:
-      - data
+      - data``~`
 
   mail:
     image: mailhog/mailhog
