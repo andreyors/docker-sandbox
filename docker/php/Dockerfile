@@ -38,4 +38,3 @@ RUN \
         go bzr \
     && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
     && set -e
-
